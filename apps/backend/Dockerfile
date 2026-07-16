@@ -1,4 +1,4 @@
-FROM node:20-bullseye-slim
+FROM node:22-bullseye-slim
 
 # Install Puppeteer and LaTeX dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -39,6 +39,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     lsb-release \
     wget \
     xdg-utils \
+    unzip \
     # LaTeX dependencies
     texlive-latex-base \
     texlive-latex-recommended \
@@ -55,7 +56,7 @@ COPY package*.json ./
 
 # Install dependencies
 # Puppeteer will download Chromium locally during install
-RUN npm ci
+RUN npm install
 
 # Copy application source
 COPY . .
