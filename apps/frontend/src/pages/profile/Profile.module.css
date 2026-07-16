@@ -1,0 +1,127 @@
+.pageContainer {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.title {
+  font-size: var(--text-h2);
+  margin-bottom: var(--spacing-sm);
+}
+
+.description {
+  color: var(--color-text-secondary);
+}
+
+.startOptions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.errorAlert {
+  background-color: rgba(220, 38, 38, 0.1);
+  color: var(--color-error);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  font-size: var(--text-sm);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  margin-bottom: var(--spacing-md);
+}
+
+.successAlert {
+  background-color: rgba(5, 150, 105, 0.1);
+  color: var(--color-verified);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  font-size: var(--text-sm);
+  border: 1px solid rgba(5, 150, 105, 0.2);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Editor Specific Styles */
+.fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 var(--spacing-xl) 0;
+}
+
+.legend {
+  font-family: var(--font-family-display);
+  font-weight: 600;
+  font-size: var(--text-h3);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-primary);
+  width: 100%;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--spacing-xs);
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.entryCard {
+  background-color: var(--color-bg-base);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.flexRow {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.flex1 {
+  flex: 1;
+}
+
+.editorInput {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: var(--text-sm);
+  font-family: var(--font-family-sans);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+
+.editorInput:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(0, 85, 255, 0.1);
+}
+
+.editorTextarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: var(--text-sm);
+  font-family: var(--font-family-sans);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.editorTextarea:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(0, 85, 255, 0.1);
+}

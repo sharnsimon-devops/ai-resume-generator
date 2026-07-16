@@ -1,0 +1,27 @@
+{
+  "name": "@resume-builder/backend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file=.env --watch src/index.js",
+    "start": "node --env-file=.env src/index.js",
+    "test": "node --test tests/unit/*.test.js tests/integration/*.test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@supabase/supabase-js": "^2.46.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "express-rate-limit": "^7.4.1",
+    "handlebars": "^4.7.9",
+    "helmet": "^8.0.0",
+    "mammoth": "^1.8.0",
+    "multer": "^2.2.0",
+    "pdf-parse": "^1.1.1",
+    "pino": "^9.5.0",
+    "pino-http": "^10.3.0",
+    "puppeteer": "^25.3.0",
+    "zod": "^3.23.8"
+  }
+}

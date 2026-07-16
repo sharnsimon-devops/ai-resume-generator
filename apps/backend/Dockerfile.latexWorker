@@ -1,0 +1,28 @@
+# Minimal Debian-based image for LaTeX compilation
+FROM debian:bullseye-slim
+
+# Prevent interactive prompts during apt-get
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install minimal TeX Live packages needed for basic resumes
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    texlive-latex-base \
+    texlive-latex-recommended \
+    texlive-fonts-recommended \
+    texlive-xetex \
+    lmodern \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user (worker)
+RUN useradd -m -u 1000 worker
+USER worker
+
+# Set working directory (will be mounted as a volume)
+WORKDIR /workspace
+
+# Default command: run pdflatex securely
+# -no-shell-escape: Disables executing external commands (CRITICAL for security)
+# -interaction=nonstopmode: Don't halt and wait for user input on errors
+# -halt-on-error: Stop immediately on first error
+# -output-directory=/output: Write output to the mounted output dir
+ENTRYPOINT ["pdflatex", "-no-shell-escape", "-interaction=nonstopmode", "-halt-on-error", "-output-directory=/output"]
