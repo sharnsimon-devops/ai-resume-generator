@@ -136,9 +136,17 @@ export function ProfileBuilderPage() {
 
   return (
     <div className={styles.pageContainer}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>Your profile</h1>
-        <p className={styles.description}>Review and edit the extracted information below, then save.</p>
+      <header className={styles.header} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 className={styles.title}>Your profile</h1>
+          <p className={styles.description}>Review and edit the extracted information below, then save.</p>
+        </div>
+        <Button variant="secondary" onClick={() => {
+          setProfile(null);
+          setMode(null);
+        }}>
+          Back / Start Over
+        </Button>
       </header>
 
       {error && <div className={styles.errorAlert} role="alert">{error}</div>}
