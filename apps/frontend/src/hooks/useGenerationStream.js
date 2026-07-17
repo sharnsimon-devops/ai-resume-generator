@@ -14,14 +14,14 @@ export function useGenerationStream() {
   const [error, setError] = useState(null);
   const [running, setRunning] = useState(false);
 
-  async function generate({ jdText, steering }) {
+  async function generate({ jdText, steering, renderEngine, templateId }) {
     setRunning(true);
     setError(null);
     setResult(null);
     setStageLabel(STAGE_LABELS.tailoring);
 
     try {
-      await sseFetch('/api/generations', { jdText, steering }, {
+      await sseFetch('/api/generations', { jdText, steering, renderEngine, templateId }, {
         onEvent: (event, data) => {
           if (event === 'progress') {
             setStageLabel(STAGE_LABELS[data.stage] || data.stage);
