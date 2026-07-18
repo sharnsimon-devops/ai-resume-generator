@@ -33,7 +33,21 @@ export function ProfileBuilderPage() {
     apiClient
       .get('/api/profile')
       .then((data) => {
-        if (data.profile) setProfile(data.profile);
+        const p = data.profile;
+        if (p) {
+          const hasData =
+            (p.contact && Object.keys(p.contact).length > 0) ||
+            (p.summary && p.summary.trim() !== '') ||
+            (p.workHistory && p.workHistory.length > 0) ||
+            (p.education && p.education.length > 0) ||
+            (p.skills && p.skills.length > 0) ||
+            (p.achievements && p.achievements.length > 0) ||
+            (p.additionalSections && p.additionalSections.length > 0);
+
+          if (hasData) {
+            setProfile(p);
+          }
+        }
       })
       .catch((err) => setError(err.message));
   }, []);

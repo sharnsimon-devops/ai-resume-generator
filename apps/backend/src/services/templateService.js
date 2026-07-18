@@ -24,7 +24,7 @@ hbs.registerHelper('join', function (array, sep) {
 
 export function injectDataIntoLatex(texTemplate, verifiedResumeJson) {
   try {
-    const template = hbs.compile(texTemplate, { strict: true });
+    const template = hbs.compile(texTemplate);
     return template(verifiedResumeJson);
   } catch (err) {
     const compileError = new Error('Template injection failed: ' + err.message);
