@@ -35,24 +35,25 @@ function escapeHtml(value) {
 }
 
 function renderContact(contact = {}) {
-  const name = contact.name ? `<div class="contact-name">${escapeHtml(contact.name)}</div>` : '';
+  const name = contact.name ? `<div class="name">${escapeHtml(contact.name).toUpperCase()}</div>` : '';
 
-  const lineParts = [contact.email, contact.phone, contact.location, ...(contact.links || []).map((l) => l.url)]
-    .filter(Boolean)
-    .map(escapeHtml);
+  const lineParts = [
+    contact.phone ? escapeHtml(contact.phone) : '',
+    contact.email ? `<a href="mailto:${escapeHtml(contact.email)}">${escapeHtml(contact.email)}</a>` : '',
+    contact.location ? escapeHtml(contact.location) : '',
+    ...(contact.links || []).map((l) => `<a href="${escapeHtml(l.url)}">${escapeHtml(l.url)}</a>`)
+  ].filter(Boolean);
 
-  const line = lineParts.length > 0 ? `<div class="contact-line">${lineParts.join(' · ')}</div>` : '';
+  const line = lineParts.length > 0 ? `<div class="contact">${lineParts.join(' | ')}</div>` : '';
 
-  return name || line ? `${name}${line}` : '';
+  return name || line ? `${name}\n${line}` : '';
 }
 
 function renderSummary(summary) {
   if (!summary) return '';
   return `
-    <div class="section">
-      <div class="section-title">Summary</div>
-      <p>${escapeHtml(summary)}</p>
-    </div>`;
+    <div class="sec">PROFESSIONAL PROFILE</div>
+    <p class="profile">${escapeHtml(summary)}</p>`;
 }
 
 function renderWorkHistory(workHistory = []) {
@@ -64,28 +65,25 @@ function renderWorkHistory(workHistory = []) {
         (entry.bullets || []).length > 0
           ? `<ul>${entry.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`
           : '';
+      const titleOrg = [entry.title, entry.organization].filter(Boolean).map(escapeHtml).join(' | ');
+      const dates = [entry.startDate, entry.endDate].filter(Boolean).map(escapeHtml).join(' – ');
       return `
-        <div class="entry">
-          <div class="entry-header"><span>${escapeHtml(entry.title)}</span><span>${escapeHtml(entry.startDate)} – ${escapeHtml(entry.endDate)}</span></div>
-          <div class="entry-subheader"><span>${escapeHtml(entry.organization)}</span><span>${escapeHtml(entry.location)}</span></div>
-          ${bullets}
-        </div>`;
+        <div class="entry"><span class="title">${titleOrg}</span><span class="meta">${dates}</span></div>
+        ${bullets}`;
     })
     .join('');
 
   return `
-    <div class="section">
-      <div class="section-title">Experience</div>
-      ${entries}
-    </div>`;
+    <div class="sec">CAREER SUMMARY</div>
+    ${entries}`;
 }
 
 function renderSkills(skills = []) {
   if (skills.length === 0) return '';
   return `
-    <div class="section">
-      <div class="section-title">Skills</div>
-      <p class="skills-list">${skills.map(escapeHtml).join(' · ')}</p>
+    <div class="sec">TECHNICAL SKILLS</div>
+    <div class="skills">
+      <div class="srow"><div class="k">Core Skills</div><div class="v">${skills.map(escapeHtml).join(', ')}</div></div>
     </div>`;
 }
 
@@ -94,28 +92,29 @@ function renderEducation(education = []) {
 
   const entries = education
     .map(
-      (entry) => `
-        <div class="entry">
-          <div class="entry-header"><span>${escapeHtml(entry.credential)}${entry.field ? ', ' + escapeHtml(entry.field) : ''}</span><span>${escapeHtml(entry.startDate)} – ${escapeHtml(entry.endDate)}</span></div>
-          <div class="entry-subheader"><span>${escapeHtml(entry.institution)}</span></div>
-        </div>`,
+      (entry) => {
+        const degField = [entry.credential, entry.field].filter(Boolean).map(escapeHtml).join(', ');
+        const dates = [entry.startDate, entry.endDate].filter(Boolean).map(escapeHtml).join(' – ');
+        return `
+          <div class="edu">
+            <span class="deg">${degField}</span>
+            <span class="inst">${escapeHtml(entry.institution)}</span>
+            <span class="yr">${dates}</span>
+          </div>`;
+      }
     )
     .join('');
 
   return `
-    <div class="section">
-      <div class="section-title">Education</div>
-      ${entries}
-    </div>`;
+    <div class="sec">EDUCATION</div>
+    ${entries}`;
 }
 
 function renderAchievements(achievements = []) {
   if (achievements.length === 0) return '';
   return `
-    <div class="section">
-      <div class="section-title">Achievements</div>
-      <ul>${achievements.map((a) => `<li>${escapeHtml(a)}</li>`).join('')}</ul>
-    </div>`;
+    <div class="sec">ACHIEVEMENTS</div>
+    <ul>${achievements.map((a) => `<li>${escapeHtml(a)}</li>`).join('')}</ul>`;
 }
 
 function renderAdditionalSections(sections = []) {
@@ -123,10 +122,8 @@ function renderAdditionalSections(sections = []) {
     .filter((section) => section.title && (section.items || []).length > 0)
     .map(
       (section) => `
-        <div class="section">
-          <div class="section-title">${escapeHtml(section.title)}</div>
-          <ul>${section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
-        </div>`,
+        <div class="sec">${escapeHtml(section.title).toUpperCase()}</div>
+        <ul>${section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
     )
     .join('');
 }

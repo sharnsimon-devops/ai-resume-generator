@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharn Simon — Resume</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css">
+<style>
+  :root{
+    --ink:#000;
+    --serif:"Computer Modern Serif","Latin Modern Roman","CMU Serif",Georgia,"Times New Roman",serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#e6e6e6;}
+  body{
+    font-family:var(--serif);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  /* A4 sheet */
+  .page{
+    width:21cm;
+    min-height:29.7cm;
+    margin:24px auto;
+    background:#fff;
+    padding:.8cm 1.2cm .8cm;
+    box-shadow:0 2px 14px rgba(0,0,0,.18);
+    font-size:8.5pt;
+    line-height:1.13;
+    hyphens:auto;
+    -webkit-hyphens:auto;
+  }
+
+  a{color:inherit;text-decoration:none;}
+
+  /* Header */
+  .name{
+    text-align:center;
+    font-weight:700;
+    font-size:19pt;
+    letter-spacing:.4pt;
+    margin:0 0 3pt;
+  }
+  .subtitle{
+    text-align:center;
+    font-size:9.4pt;
+    margin:0 0 3pt;
+  }
+  .contact{
+    text-align:center;
+    font-size:8.9pt;
+    margin:0 0 4pt;
+  }
+
+  /* Section headings with full-width rule */
+  .sec{
+    font-weight:700;
+    font-size:10.3pt;
+    letter-spacing:.2pt;
+    margin:5pt 0 0;
+    padding-bottom:1.2pt;
+    border-bottom:.9pt solid var(--ink);
+  }
+  .sec + *{margin-top:2.5pt;}
+
+  p.profile{
+    text-align:justify;
+    margin:3pt 0 0;
+    line-height:1.16;
+  }
+
+  /* Technical skills two-column */
+  .skills{margin-top:4pt;}
+  .srow{display:flex;align-items:flex-start;margin:.6pt 0;line-height:1.18;}
+  .srow .k{
+    flex:0 0 3.85cm;
+    font-weight:700;
+    padding-right:.3cm;
+  }
+  .srow .v{flex:1 1 auto;}
+
+  /* Job / project heading rows */
+  .entry{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-top:3.5pt;
+    gap:.5cm;
+  }
+  .entry .title{font-weight:700;}
+  .entry .meta{font-weight:700;white-space:nowrap;}
+  .entry .meta.reg{font-weight:400;}
+
+  .tech{font-style:italic;margin:1pt 0 0;}
+
+  /* Bullet lists */
+  ul{
+    list-style:none;
+    margin:1.5pt 0 0;
+    padding:0;
+  }
+  ul li{
+    position:relative;
+    padding-left:.42cm;
+    margin:.7pt 0;
+    text-align:justify;
+    line-height:1.15;
+  }
+  ul li::before{
+    content:"\2022";
+    position:absolute;
+    left:.08cm;
+    top:-.2pt;
+  }
+
+  /* Education three-column rows */
+  .edu{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    column-gap:.4cm;
+    align-items:baseline;
+    margin-top:3pt;
+  }
+  .edu .deg{font-weight:700;}
+  .edu .inst{text-align:center;}
+  .edu .yr{text-align:right;white-space:nowrap;}
+
+  .avail{
+    display:flex;
+    gap:1.4cm;
+    margin-top:5pt;
+  }
+
+  @media print{
+    html,body{background:#fff;}
+    .page{margin:0;box-shadow:none;width:auto;min-height:auto;padding:0;}
+    @page{size:A4;margin:.8cm 1.2cm .8cm;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="name">SHARN SIMON</div>
+  <div class="subtitle">Associate Engineer | DevOps &amp; Cloud | CI/CD &amp; Automation | AI-Assisted Engineering</div>
+  <div class="contact">+44 7765508566 | <a href="mailto:sharnjackson2002@gmail.com">sharnjackson2002@gmail.com</a> | <a href="https://linkedin.com/in/sharnsimon/">linkedin.com/in/sharnsimon/</a> | <a href="https://github.com/sharnsimon-devops">github.com/sharnsimon-devops</a></div>
+
+  <div class="sec">PROFESSIONAL PROFILE</div>
+  <p class="profile">DevOps and Platform Engineer with 3+ years of commercial experience architecting cloud infrastructure, CI/CD pipelines, and full-stack systems end to end, including a PCI-DSS compliant payment platform built solo on Kubernetes (AWS EKS) with Terraform. Delivered a 35% cloud cost reduction, 40% cut in latency incidents, and an 80% improvement in deployment efficiency through automation-first engineering. Independently designed, deployed, and now operates a live production platform for a UK charity with no team to hand off to, integrating the Anthropic Claude API to automate a fully manual client workflow elsewhere. Genuinely curious engineer who translates client requirements into working technical solutions fast, comfortable engaging directly with stakeholders and mentoring others through documentation and clear technical communication.</p>
+
+  <div class="sec">TECHNICAL SKILLS</div>
+  <div class="skills">
+    <div class="srow"><div class="k">Programming Languages</div><div class="v">Python, JavaScript/TypeScript, Node.js, SQL</div></div>
+    <div class="srow"><div class="k">Cloud &amp; Infrastructure</div><div class="v">AWS, Azure, Containers &amp; Kubernetes (Amazon EKS), CI/CD pipelines, Terraform</div></div>
+    <div class="srow"><div class="k">Frameworks &amp; Tools</div><div class="v">Modern web and API frameworks (Node.js/Express), SQL and NoSQL databases, Version control with Git</div></div>
+    <div class="srow"><div class="k">Engineering Practices</div><div class="v">Agile and Scrum methodologies, test automation, AI-assisted development tooling</div></div>
+    <div class="srow"><div class="k">CI/CD</div><div class="v">Jenkins, GitHub Actions, GitLab CI/CD, automated deployment pipelines</div></div>
+    <div class="srow"><div class="k">Databases</div><div class="v">PostgreSQL, MySQL, DynamoDB, MongoDB</div></div>
+  </div>
+
+  <div class="sec">CAREER SUMMARY</div>
+
+  <div class="entry"><span class="title">Research Volunteer | ICRM, London, UK</span><span class="meta">Apr 2026 – Present</span></div>
+  <ul>
+    <li>Designed, developed, and integrated full-stack application components (front-end, back-end, and databases) for a live client platform, engaging directly with client requirements to translate them into technical solution designs</li>
+    <li>Built RBAC across three clinician roles, encryption at rest for sensitive PII fields, and OTP-based authentication with account lockout and forgot-password flows, protecting patient data end to end</li>
+    <li>Deployed and maintained cloud infrastructure on Azure (VNet with NSGs, Container Apps, PostgreSQL Flexible Server on a private endpoint, Key Vault), gaining hands-on exposure to containers with no dedicated team to escalate issues to</li>
+    <li>Administered the organisation’s Microsoft Entra ID tenant end to end, provisioning user accounts and managing application registrations independently</li>
+    <li>Built automated audit logging on every INSERT/UPDATE/DELETE/VIEW operation, queryable by user, action, table, and date, and implemented dual-region compliance tagging (UK GDPR Article 9 / India DPDP Act 2023) for patient records</li>
+    <li>Architected a serverless payment gateway using AWS Lambda and API Gateway for secure, PCI-compliant donation processing, and deployed a React SPA to Wasmer Edge for cost-optimised global content delivery</li>
+    <li>Wrote clean, maintainable code and documented technical decisions clearly for non-technical stakeholders</li>
+  </ul>
+
+  <div class="entry"><span class="title">DevOps Engineer | Centizen Inc, India</span><span class="meta">Nov 2024 – Jun 2025</span></div>
+  <ul>
+    <li>Owned CI/CD pipelines end to end (Docker, ECS, Jenkins) across Dev, UAT, and Production, automating deployment and eliminating 40% of manual intervention across all environments</li>
+    <li>Embedded tfsec and Checkov security scanning directly into Jenkins pipelines, blocking high-severity findings pre-deploy, plus SonarQube quality gates, cutting post-deployment defects by 35%</li>
+    <li>Worked with cloud infrastructure on AWS using Terraform, and containers via Docker and ECS, re-tuning ALB health checks and CloudFront caching to resolve persistent traffic bottlenecks and cut latency incidents by 40%</li>
+    <li>Built serverless, event-driven systems using AWS Lambda, API Gateway, SES, and SNS, including automated email tracking and notification services for production deployments</li>
+    <li>Engineered CloudFront Function auto-scaling automation to detect and bypass AWS distribution quota limits, preventing deployment failures before they reached production</li>
+    <li>Applied IAM least-privilege policies across ECS task roles, API Gateway, and S3, closing over-permissioned service access identified during a security review</li>
+    <li>Acted as primary incident responder, authoring runbooks for ECS, ALB, and CloudFront issues, and reduced monthly cloud spend by 35% through automated right-sizing</li>
+    <li>Promoted from Backend Developer after demonstrating strong infrastructure ownership and automation expertise</li>
+  </ul>
+
+  <div class="entry"><span class="title">Backend Developer | Centizen Inc, India</span><span class="meta">Feb 2023 – Nov 2024</span></div>
+  <ul>
+    <li>Designed, developed, and integrated full-stack application components using Node.js, JavaScript, and SQL and NoSQL databases, participating in collaborative code reviews</li>
+  </ul>
+
+  <div class="sec">KEY PROJECTS</div>
+
+  <div class="entry"><span class="title">PayCore | PCI-DSS Compliant Payment Microservices on AWS EKS</span><span class="meta reg">Personal Project</span></div>
+  <div class="tech">Terraform, AWS EKS, Kubernetes, Docker, Jenkins, tfsec, Checkov, KMS, CloudTrail, WAF, IAM</div>
+  <ul>
+    <li>Architected a security-first PCI-DSS compliant infrastructure on Kubernetes (EKS) using Terraform IaC, with IAM least-privilege, KMS encryption, and network segmentation built in from the outset</li>
+    <li>Built a CI/CD pipeline with automated security gates blocking every HIGH-severity finding pre-deployment, plus Terraform remote state management and continuous compliance monitoring</li>
+  </ul>
+
+  <div class="entry"><span class="title">Bread of Life | AI-Driven Bakery Operations Platform</span><span class="meta reg">Freelance, London</span></div>
+  <div class="tech">React, Node.js, PostgreSQL, Anthropic Claude API, Docker</div>
+  <ul>
+    <li>Designed and integrated full-stack application components solo, including AI-assisted development tooling via the Anthropic Claude API to automate a manual client workflow, delivered end to end within two weeks</li>
+  </ul>
+
+  <div class="sec">EDUCATION</div>
+  <div class="edu">
+    <span class="deg">MSc Cyber Security (Predicted: 1st Class)</span>
+    <span class="inst">De Montfort University, Leicester, UK</span>
+    <span class="yr">2025 – 2026</span>
+  </div>
+  <div class="edu">
+    <span class="deg">BEng (Hons) Computer Science and Engineering</span>
+    <span class="inst">St. Xaviers Catholic College, India</span>
+    <span class="yr">2019 – 2023</span>
+  </div>
+
+  <div class="avail">
+    <span><strong>Availability:</strong> From September 2026</span>
+    <span><strong>Locations:</strong> Open to Gloucester, London, or Winchester, hybrid</span>
+  </div>
+
+</div>
+</body>
+</html>
