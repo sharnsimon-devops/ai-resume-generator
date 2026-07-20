@@ -9,6 +9,7 @@ import { SteeringForm } from './components/SteeringForm.jsx';
 import { ProgressStream } from './components/ProgressStream.jsx';
 import { ResumePreview } from './components/ResumePreview.jsx';
 import { GuardrailFlagsPanel } from './components/GuardrailFlagsPanel.jsx';
+import { AtsWarningPanel } from './components/AtsWarningPanel.jsx';
 import { Card } from '../../components/ui/Card.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import styles from './Generate.module.css';
@@ -22,6 +23,12 @@ export function GeneratePage() {
   const [templates, setTemplates] = useState([]);
   
   const [previewResume, setPreviewResume] = useState(null);
+  
+  // ATS State
+  const [isCheckingAts, setIsCheckingAts] = useState(false);
+  const [atsResult, setAtsResult] = useState(null);
+  const [atsError, setAtsError] = useState(null);
+
   const { generate, stageLabel, result, error, running } = useGenerationStream();
 
   useEffect(() => {
@@ -35,10 +42,42 @@ export function GeneratePage() {
       .catch(console.error);
   }, []);
 
+  async function checkAtsAndGenerate() {
+    setAtsError(null);
+    setAtsResult(null);
+    setIsCheckingAts(true);
+    
+    try {
+      const scoreData = await apiClient.post('/api/ats/score', { jdText });
+      
+      if (scoreData.overall_score > 80) {
+        // Automatically proceed
+        setIsCheckingAts(false);
+        await triggerGeneration();
+      } else {
+        // Pause and show warning
+        setAtsResult(scoreData);
+        setIsCheckingAts(false);
+      }
+    } catch (err) {
+      console.error(err);
+      setAtsError(err.message || 'Failed to analyze job fit.');
+      setIsCheckingAts(false);
+    }
+  }
+
+  async function triggerGeneration() {
+    setPreviewResume(null);
+    setAtsResult(null);
+    await generate({ jdText, steering, renderEngine, templateId });
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
-    setPreviewResume(null);
-    await generate({ jdText, steering, renderEngine, templateId });
+    if (!jdText.trim()) return;
+    
+    // First run ATS check
+    await checkAtsAndGenerate();
   }
 
   const resume = previewResume || result?.resume;
@@ -70,27 +109,46 @@ export function GeneratePage() {
               />
             </Card>
 
-            <Button type="submit" size="lg" isLoading={running} disabled={jdText.trim().length === 0 || (renderEngine === 'latex' && !templateId)}>
-              Tailor my resume
+            <Button type="submit" size="lg" isLoading={running || isCheckingAts} disabled={jdText.trim().length === 0 || (renderEngine === 'latex' && !templateId)}>
+              {isCheckingAts ? 'Analyzing Job Fit...' : 'Check Fit & Tailor'}
             </Button>
             
-            {error && <div style={{ color: 'var(--color-error)', fontSize: 'var(--text-sm)', padding: '0.5rem', backgroundColor: 'rgba(220, 38, 38, 0.1)', borderRadius: 'var(--border-radius-md)' }}>{error}</div>}
+            {(error || atsError) && (
+              <div style={{ color: 'var(--color-error)', fontSize: 'var(--text-sm)', padding: '0.5rem', backgroundColor: 'rgba(220, 38, 38, 0.1)', borderRadius: 'var(--border-radius-md)' }}>
+                {error || atsError}
+              </div>
+            )}
           </form>
         </div>
 
         {/* Right Side: Preview & Progress */}
         <div className={styles.previewPanel}>
-          {running && (
+          {isCheckingAts && (
+            <Card style={{ minHeight: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--color-bg-base)' }}>
+              <div className="spinner" style={{ marginBottom: '1rem' }}></div>
+              <p style={{ color: 'var(--color-text-secondary)' }}>Analyzing job match using ATS algorithm...</p>
+            </Card>
+          )}
+
+          {atsResult && !running && (
+             <AtsWarningPanel 
+               atsResult={atsResult} 
+               onProceed={triggerGeneration} 
+               onCancel={() => setAtsResult(null)} 
+             />
+          )}
+
+          {running && !isCheckingAts && (
             <ProgressStream stageLabel={stageLabel} />
           )}
 
-          {!running && !result && (
+          {!running && !result && !isCheckingAts && !atsResult && (
             <Card style={{ minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--color-bg-base)', borderStyle: 'dashed' }}>
               <p style={{ color: 'var(--color-text-secondary)' }}>Your tailored resume will appear here.</p>
             </Card>
           )}
 
-          {result && !running && (
+          {result && !running && !atsResult && !isCheckingAts && (
             <>
               {/* The Signature Verification Panel */}
               <GuardrailFlagsPanel flags={result.flags} />
@@ -115,7 +173,25 @@ export function GeneratePage() {
                         Download .tex
                       </Button>
                     )}
-                    <Button variant="primary" onClick={() => downloadGenerationPdf(result.generationId)}>
+                    <Button variant="primary" onClick={async (e) => {
+                      const btn = e.currentTarget;
+                      const originalText = btn.innerText;
+                      btn.innerText = 'Saving...';
+                      btn.disabled = true;
+                      try {
+                        if (previewResume) {
+                          await apiClient.put(`/api/generations/${result.generationId}`, { resume });
+                        }
+                        btn.innerText = 'Downloading...';
+                        await downloadGenerationPdf(result.generationId);
+                      } catch (err) {
+                        console.error('Failed to download PDF:', err);
+                        alert('Failed to save or download PDF.');
+                      } finally {
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                      }
+                    }}>
                       Download PDF
                     </Button>
                   </div>

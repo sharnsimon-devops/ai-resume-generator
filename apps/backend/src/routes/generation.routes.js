@@ -11,3 +11,4 @@ generationRouter.use(requireAuth);
 
 generationRouter.post('/', generationRateLimiter, generationController.createGeneration);
 generationRouter.get('/:id/pdf', asyncHandler(generationController.downloadGenerationPdf));
+generationRouter.put('/:id', asyncHandler(generationController.updateGeneration));

@@ -41,3 +41,10 @@ export async function downloadGenerationPdf(req, res) {
   res.setHeader('Content-Disposition', `attachment; filename="resume-${req.params.id}.pdf"`);
   res.send(pdfBuffer);
 }
+
+export async function updateGeneration(req, res) {
+  const { resume } = req.body;
+  if (!resume) return res.status(400).json({ error: 'resume_required' });
+  await generationService.updateGenerationResult(req.user.id, req.accessToken, req.params.id, resume);
+  res.json({ success: true });
+}

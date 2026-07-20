@@ -123,3 +123,13 @@ export async function renderGenerationPdf(userId, accessToken, generationId) {
 
   return renderService.renderResumeToPdf(data.result_json);
 }
+
+export async function updateGenerationResult(userId, accessToken, generationId, newResumeJson) {
+  const { error } = await getSupabaseForUser(accessToken)
+    .from('generations')
+    .update({ result_json: newResumeJson })
+    .eq('id', generationId)
+    .eq('user_id', userId);
+
+  if (error) throw error;
+}
