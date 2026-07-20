@@ -9,7 +9,10 @@ export function NavBar() {
   return (
     <header className={styles.navHeader}>
       <div className={styles.navContainer}>
-        <Link to="/" className={styles.brand}>ResumeAI</Link>
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column' }}>
+          <span className={styles.brand}>OG Resume Builder</span>
+          <span style={{ fontSize: '0.65rem', color: '#6B7280', marginTop: '-4px', fontWeight: '500', letterSpacing: '0.5px' }}>A Product of OG</span>
+        </Link>
         
         {user ? (
           <>
