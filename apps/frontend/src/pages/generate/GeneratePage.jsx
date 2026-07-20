@@ -109,9 +109,23 @@ export function GeneratePage() {
               />
             </Card>
 
-            <Button type="submit" size="lg" isLoading={running || isCheckingAts} disabled={jdText.trim().length === 0 || (renderEngine === 'latex' && !templateId)}>
-              {isCheckingAts ? 'Analyzing Job Fit...' : 'Check Fit & Tailor'}
-            </Button>
+            <div style={{ display: 'flex', gap: '1rem', width: '100%' }}>
+              <Button type="submit" size="lg" style={{ flex: 1 }} isLoading={isCheckingAts} disabled={jdText.trim().length === 0 || (renderEngine === 'latex' && !templateId) || running}>
+                {isCheckingAts ? 'Analyzing Job Fit...' : 'Check Fit & Tailor'}
+              </Button>
+              
+              <Button 
+                type="button" 
+                variant="secondary" 
+                size="lg" 
+                style={{ flex: 1 }}
+                onClick={triggerGeneration}
+                isLoading={running && !isCheckingAts}
+                disabled={jdText.trim().length === 0 || (renderEngine === 'latex' && !templateId) || isCheckingAts}
+              >
+                Tailor Immediately
+              </Button>
+            </div>
             
             {(error || atsError) && (
               <div style={{ color: 'var(--color-error)', fontSize: 'var(--text-sm)', padding: '0.5rem', backgroundColor: 'rgba(220, 38, 38, 0.1)', borderRadius: 'var(--border-radius-md)' }}>
