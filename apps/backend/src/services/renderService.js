@@ -156,6 +156,27 @@ export async function renderResumeToPdf(verifiedResumeJson) {
   const page = await browser.newPage();
   try {
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
+
+    // Auto-scale font size to fit exactly on one page
+    await page.evaluate(() => {
+      const htmlEl = document.documentElement;
+      const wrapper = document.querySelector('.content-wrapper');
+      
+      // Target max height: 29.7cm (A4 height) - 1.6cm (top/bottom padding) approx 1062px
+      const TARGET_HEIGHT_PX = 1062; 
+      const MIN_FONT_PT = 7.5;
+      const MAX_FONT_PT = 11.5;
+      let currentFontSize = MAX_FONT_PT;
+      
+      htmlEl.style.fontSize = currentFontSize + 'pt';
+      
+      // Decrease font size until content fits within the page or hits minimum size
+      while (wrapper.offsetHeight > TARGET_HEIGHT_PX && currentFontSize > MIN_FONT_PT) {
+          currentFontSize -= 0.1;
+          htmlEl.style.fontSize = currentFontSize + 'pt';
+      }
+    });
+
     const pdfBytes = await page.pdf({
       format: 'Letter',
       printBackground: true,
