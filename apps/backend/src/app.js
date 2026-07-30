@@ -11,6 +11,7 @@ import { profileRouter } from './routes/profile.routes.js';
 import { generationRouter } from './routes/generation.routes.js';
 import { templateRouter } from './routes/template.routes.js';
 import { atsRouter } from './routes/ats.routes.js';
+import { resumeRouter } from './routes/resume.routes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 export function createApp() {
@@ -29,6 +30,7 @@ export function createApp() {
   app.use('/api/generations', generationRouter);
   app.use('/api/templates', templateRouter);
   app.use('/api/ats', atsRouter);
+  app.use('/api/resume', resumeRouter);
 
   app.use(errorHandler);
 

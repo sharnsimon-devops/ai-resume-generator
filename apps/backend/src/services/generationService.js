@@ -13,7 +13,7 @@ async function resolveApiKey(userId) {
   return keyService.getDecryptedApiKey(userId);
 }
 
-export async function runGeneration({ userId, accessToken, jdText, steering, renderEngine = 'html', templateId, onProgress }) {
+export async function runGeneration({ userId, accessToken, jdText, steering, renderEngine = 'html', templateId, onProgress, gapAnswers, keywordList }) {
   const profile = await profileService.getProfile(userId, accessToken);
   if (!profile) {
     const err = new Error('profile_not_found');
@@ -25,13 +25,14 @@ export async function runGeneration({ userId, accessToken, jdText, steering, ren
   const apiKey = await resolveApiKey(userId);
 
   onProgress?.('tailoring');
-  const draft = await tailorService.tailorResume({ profileJson: profile, jdText, steering, apiKey });
+  const draft = await tailorService.tailorResume({ profileJson: profile, jdText, steering, apiKey, gapAnswers, keywordList });
 
   onProgress?.('verifying');
   const { resume: verifiedResume, flags } = await guardrailService.verifyResume({
     draftResumeJson: draft,
     profileJson: profile,
     apiKey,
+    gapAnswers,
   });
 
   onProgress?.('rendering');

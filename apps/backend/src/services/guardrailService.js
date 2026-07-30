@@ -6,9 +6,10 @@ import { VerifiedResumeSchema, FlagsSchema } from '../utils/validation.js';
 
 // Deliberately no `steering` parameter — the guardrail must never see steering hints,
 // only the draft it produced and the original profile it must be grounded in.
-export async function verifyResume({ draftResumeJson, profileJson, apiKey }) {
+// `gapAnswers` are included because they represent confirmed facts outside the original profile.
+export async function verifyResume({ draftResumeJson, profileJson, apiKey, gapAnswers }) {
   const client = createAnthropicClient({ apiKey, mock: env.ANTHROPIC_MOCK_MODE });
-  const { system, messages } = buildGuardrailPrompt({ draftResumeJson, profileJson });
+  const { system, messages } = buildGuardrailPrompt({ draftResumeJson, profileJson, gapAnswers });
 
   const { content } = await client.complete({ system, messages, mockFixture: guardrailMock });
 

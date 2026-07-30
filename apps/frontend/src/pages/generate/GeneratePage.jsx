@@ -9,10 +9,18 @@ import { SteeringForm } from './components/SteeringForm.jsx';
 import { ProgressStream } from './components/ProgressStream.jsx';
 import { ResumePreview } from './components/ResumePreview.jsx';
 import { GuardrailFlagsPanel } from './components/GuardrailFlagsPanel.jsx';
-import { AtsWarningPanel } from './components/AtsWarningPanel.jsx';
+import { GapAnalysisPanel } from './components/GapAnalysisPanel.jsx';
+import { HybridScorePanel } from './components/HybridScorePanel.jsx';
 import { Card } from '../../components/ui/Card.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import styles from './Generate.module.css';
+
+/**
+ * Flow phases:
+ *   idle → analyzing → gaps → generating → done
+ *                 ↘ (no gaps) → generating → done
+ *   idle → generating → done  (Tailor Immediately bypass)
+ */
 
 export function GeneratePage() {
   const location = useLocation();
@@ -21,13 +29,19 @@ export function GeneratePage() {
   const [renderEngine, setRenderEngine] = useState('html');
   const [templateId, setTemplateId] = useState('');
   const [templates, setTemplates] = useState([]);
-  
+
   const [previewResume, setPreviewResume] = useState(null);
-  
-  // ATS State
-  const [isCheckingAts, setIsCheckingAts] = useState(false);
-  const [atsResult, setAtsResult] = useState(null);
-  const [atsError, setAtsError] = useState(null);
+
+  // 3-step pipeline state
+  const [flowPhase, setFlowPhase] = useState('idle'); // idle | analyzing | gaps | generating | done
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [gapAnswers, setGapAnswers] = useState({});
+  const [analyzeError, setAnalyzeError] = useState(null);
+
+  // Post-generation scoring state
+  const [isScoring, setIsScoring] = useState(false);
+  const [scoreResult, setScoreResult] = useState(null);
+  const [scoreError, setScoreError] = useState(null);
 
   const { generate, stageLabel, result, error, running } = useGenerationStream();
 
@@ -42,64 +56,150 @@ export function GeneratePage() {
       .catch(console.error);
   }, []);
 
-  async function checkAtsAndGenerate() {
-    setAtsError(null);
-    setAtsResult(null);
-    setIsCheckingAts(true);
-    
+  // When generation finishes, update flow phase
+  useEffect(() => {
+    if (result && !running) {
+      setFlowPhase('done');
+    }
+  }, [result, running]);
+
+  /**
+   * Step 1: Analyze JD against user's profile
+   */
+  async function handleAnalyzeAndGenerate(e) {
+    e.preventDefault();
+    if (!jdText.trim()) return;
+
+    setAnalyzeError(null);
+    setAnalysisResult(null);
+    setGapAnswers({});
+    setPreviewResume(null);
+    setScoreResult(null);
+    setScoreError(null);
+    setFlowPhase('analyzing');
+
     try {
-      const scoreData = await apiClient.post('/api/ats/score', { jdText });
-      
-      if (scoreData.overall_score > 80) {
-        // Automatically proceed
-        setIsCheckingAts(false);
-        await triggerGeneration();
+      const analysis = await apiClient.post('/api/resume/analyze', { jdText });
+      setAnalysisResult(analysis);
+
+      if (analysis.flagged_gaps && analysis.flagged_gaps.length > 0) {
+        // Show gap resolution UI
+        setFlowPhase('gaps');
       } else {
-        // Pause and show warning
-        setAtsResult(scoreData);
-        setIsCheckingAts(false);
+        // No gaps — skip straight to generation
+        setFlowPhase('generating');
+        await generate({
+          jdText,
+          steering,
+          renderEngine,
+          templateId,
+          gapAnswers: [],
+          keywordList: analysis.keyword_list || [],
+          useResumeEndpoint: true,
+        });
       }
     } catch (err) {
       console.error(err);
-      setAtsError(err.message || 'Failed to analyze job fit.');
-      setIsCheckingAts(false);
+      setAnalyzeError(err.message || 'Failed to analyze job description.');
+      setFlowPhase('idle');
     }
   }
 
-  async function triggerGeneration() {
+  /**
+   * Step 2: Generate with gap answers (after user resolves all gaps)
+   */
+  async function handleGenerateWithGaps() {
+    if (!analysisResult) return;
+
     setPreviewResume(null);
-    setAtsResult(null);
+    setScoreResult(null);
+    setScoreError(null);
+    setFlowPhase('generating');
+
+    // Convert gap answers map to array format for the API
+    const gapAnswersArray = Object.entries(gapAnswers).map(([id, answer]) => ({ id, answer }));
+
+    await generate({
+      jdText,
+      steering,
+      renderEngine,
+      templateId,
+      gapAnswers: gapAnswersArray,
+      keywordList: analysisResult.keyword_list || [],
+      useResumeEndpoint: true,
+    });
+  }
+
+  /**
+   * Bypass: Tailor immediately without analyze step (existing behavior)
+   */
+  async function handleTailorImmediately() {
+    setPreviewResume(null);
+    setAnalysisResult(null);
+    setGapAnswers({});
+    setScoreResult(null);
+    setScoreError(null);
+    setFlowPhase('generating');
     await generate({ jdText, steering, renderEngine, templateId });
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!jdText.trim()) return;
-    
-    // First run ATS check
-    await checkAtsAndGenerate();
+  /**
+   * Step 3: Score the generated resume using hybrid scorer
+   */
+  async function handleScoreResume() {
+    if (!result?.resume && !previewResume) return;
+
+    setIsScoring(true);
+    setScoreError(null);
+
+    try {
+      const resumeToScore = previewResume || result.resume;
+      const data = await apiClient.post('/api/resume/score', {
+        resumeJson: resumeToScore,
+        jdText,
+        keywordList: analysisResult?.keyword_list || [],
+      });
+      setScoreResult(data);
+    } catch (err) {
+      console.error(err);
+      setScoreError(err.message || 'Failed to score resume.');
+    } finally {
+      setIsScoring(false);
+    }
+  }
+
+  function handleGapAnswerChange(gapId, value) {
+    setGapAnswers(prev => ({ ...prev, [gapId]: value }));
+  }
+
+  function handleBackToIdle() {
+    setFlowPhase('idle');
+    setAnalysisResult(null);
+    setGapAnswers({});
+    setAnalyzeError(null);
   }
 
   const resume = previewResume || result?.resume;
+  const isInputDisabled = flowPhase === 'analyzing' || flowPhase === 'generating' || running;
 
   return (
     <div className={styles.pageContainer}>
       <header className={styles.header}>
         <h1 className={styles.title}>Tailor your resume</h1>
-        <p className={styles.description}>Paste the job description and let the agent tailor your profile to fit.</p>
+        <p className={styles.description}>Paste the job description and let the agent analyze gaps, then tailor your profile to fit.</p>
       </header>
 
       <div className={styles.splitScreen}>
         {/* Left Side: Inputs */}
         <div className={styles.inputPanel}>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <form onSubmit={handleAnalyzeAndGenerate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <Card>
               <JobDescriptionInput value={jdText} onChange={setJdText} />
             </Card>
-            
+
             <Card>
-              <SteeringForm 
-                steering={steering} 
+              <SteeringForm
+                steering={steering}
                 onChange={setSteering}
                 renderEngine={renderEngine}
                 setRenderEngine={setRenderEngine}
@@ -110,70 +210,93 @@ export function GeneratePage() {
             </Card>
 
             <div style={{ display: 'flex', gap: '1rem', width: '100%' }}>
-              <Button type="submit" size="lg" style={{ flex: 1 }} isLoading={isCheckingAts} disabled={jdText.trim().length === 0 || (renderEngine === 'latex' && !templateId) || running}>
-                {isCheckingAts ? 'Analyzing Job Fit...' : 'Check Fit & Tailor'}
-              </Button>
-              
-              <Button 
-                type="button" 
-                variant="secondary" 
-                size="lg" 
+              <Button
+                type="submit"
+                size="lg"
                 style={{ flex: 1 }}
-                onClick={triggerGeneration}
-                isLoading={running && !isCheckingAts}
-                disabled={jdText.trim().length === 0 || (renderEngine === 'latex' && !templateId) || isCheckingAts}
+                isLoading={flowPhase === 'analyzing'}
+                disabled={jdText.trim().length === 0 || (renderEngine === 'latex' && !templateId) || isInputDisabled}
+              >
+                {flowPhase === 'analyzing' ? 'Analyzing JD…' : 'Analyze & Tailor'}
+              </Button>
+
+              <Button
+                type="button"
+                variant="secondary"
+                size="lg"
+                style={{ flex: 1 }}
+                onClick={handleTailorImmediately}
+                isLoading={flowPhase === 'generating' && !analysisResult}
+                disabled={jdText.trim().length === 0 || (renderEngine === 'latex' && !templateId) || isInputDisabled}
               >
                 Tailor Immediately
               </Button>
             </div>
-            
-            {(error || atsError) && (
+
+            {(error || analyzeError) && (
               <div style={{ color: 'var(--color-error)', fontSize: 'var(--text-sm)', padding: '0.5rem', backgroundColor: 'rgba(220, 38, 38, 0.1)', borderRadius: 'var(--border-radius-md)' }}>
-                {error || atsError}
+                {error || analyzeError}
               </div>
             )}
           </form>
         </div>
 
-        {/* Right Side: Preview & Progress */}
+        {/* Right Side: Flow states */}
         <div className={styles.previewPanel}>
-          {isCheckingAts && (
+          {/* Analyzing spinner */}
+          {flowPhase === 'analyzing' && (
             <Card style={{ minHeight: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--color-bg-base)' }}>
               <div className="spinner" style={{ marginBottom: '1rem' }}></div>
-              <p style={{ color: 'var(--color-text-secondary)' }}>Analyzing job match using ATS algorithm...</p>
+              <p style={{ color: 'var(--color-text-secondary)' }}>Analyzing job description against your profile…</p>
             </Card>
           )}
 
-          {atsResult && !running && (
-             <AtsWarningPanel 
-               atsResult={atsResult} 
-               onProceed={triggerGeneration} 
-               onCancel={() => setAtsResult(null)} 
-             />
+          {/* Gap Resolution UI (Step 1 → Step 2 bridge) */}
+          {flowPhase === 'gaps' && analysisResult && (
+            <GapAnalysisPanel
+              analysis={analysisResult}
+              gapAnswers={gapAnswers}
+              onGapAnswerChange={handleGapAnswerChange}
+              onProceed={handleGenerateWithGaps}
+              onCancel={handleBackToIdle}
+            />
           )}
 
-          {running && !isCheckingAts && (
+          {/* Generation progress */}
+          {(flowPhase === 'generating' && running) && (
             <ProgressStream stageLabel={stageLabel} />
           )}
 
-          {!running && !result && !isCheckingAts && !atsResult && (
+          {/* Idle state placeholder */}
+          {flowPhase === 'idle' && !result && (
             <Card style={{ minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--color-bg-base)', borderStyle: 'dashed' }}>
               <p style={{ color: 'var(--color-text-secondary)' }}>Your tailored resume will appear here.</p>
             </Card>
           )}
 
-          {result && !running && !atsResult && !isCheckingAts && (
+          {/* Results */}
+          {flowPhase === 'done' && result && !running && (
             <>
-              {/* The Signature Verification Panel */}
+              {/* Guardrail verification */}
               <GuardrailFlagsPanel flags={result.flags} />
-              
+
+              {/* Hybrid ATS Score */}
+              {scoreResult && <HybridScorePanel scoreResult={scoreResult} />}
+
               <div className={styles.previewCard}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem' }}>
                   <h3 style={{ margin: 0 }}>Resume Preview</h3>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <Button
+                      variant="secondary"
+                      onClick={handleScoreResume}
+                      isLoading={isScoring}
+                    >
+                      Calculate ATS Score
+                    </Button>
                     {result.texSource && (
-                      <Button 
-                        variant="secondary" 
+                      <Button
+                        variant="secondary"
                         onClick={() => {
                           const blob = new Blob([result.texSource], { type: 'text/plain' });
                           const url = URL.createObjectURL(blob);
@@ -210,6 +333,11 @@ export function GeneratePage() {
                     </Button>
                   </div>
                 </div>
+                {scoreError && (
+                  <div style={{ color: 'var(--color-error)', fontSize: 'var(--text-sm)', padding: '0.5rem', marginBottom: '1rem', backgroundColor: 'rgba(220, 38, 38, 0.1)', borderRadius: 'var(--border-radius-md)' }}>
+                    {scoreError}
+                  </div>
+                )}
                 <ResumePreview resume={resume} onChange={setPreviewResume} />
               </div>
             </>

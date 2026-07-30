@@ -4,9 +4,9 @@ import { buildTailorPrompt } from '../prompts/tailor.prompt.js';
 import { tailorMock } from '../prompts/mocks/tailor.mock.js';
 import { DraftResumeSchema } from '../utils/validation.js';
 
-export async function tailorResume({ profileJson, jdText, steering, apiKey }) {
+export async function tailorResume({ profileJson, jdText, steering, apiKey, gapAnswers, keywordList }) {
   const client = createAnthropicClient({ apiKey, mock: env.ANTHROPIC_MOCK_MODE });
-  const { system, messages } = buildTailorPrompt({ profileJson, jdText, steering });
+  const { system, messages } = buildTailorPrompt({ profileJson, jdText, steering, gapAnswers, keywordList });
 
   const { content } = await client.complete({ system, messages, mockFixture: tailorMock });
 
