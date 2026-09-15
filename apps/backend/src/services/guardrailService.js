@@ -15,16 +15,11 @@ export async function verifyResume({ draftResumeJson, profileJson, apiKey, gapAn
 
   let parsedJson;
   try {
-    let cleanContent = content.trim();
-    if (cleanContent.startsWith('```json')) {
-      cleanContent = cleanContent.slice(7);
-    } else if (cleanContent.startsWith('```')) {
-      cleanContent = cleanContent.slice(3);
-    }
-    if (cleanContent.endsWith('```')) {
-      cleanContent = cleanContent.slice(0, -3);
-    }
-    parsedJson = JSON.parse(cleanContent.trim());
+    const startIndex = content.indexOf('{');
+    const endIndex = content.lastIndexOf('}');
+    if (startIndex === -1 || endIndex === -1) throw new Error('No JSON object found');
+    const cleanContent = content.substring(startIndex, endIndex + 1);
+    parsedJson = JSON.parse(cleanContent);
   } catch {
     const err = new Error('guardrail_returned_invalid_json');
     err.status = 502;

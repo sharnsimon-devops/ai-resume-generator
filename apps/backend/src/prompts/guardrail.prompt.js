@@ -9,10 +9,9 @@ export function buildGuardrailPrompt({ draftResumeJson, profileJson, gapAnswers 
   const rules = [
     'You are a fact-checking guardrail for a resume generator. You will be given a DRAFT tailored resume',
     'and the candidate\'s ORIGINAL profile (the main source of truth)' + (hasGapContext ? ' along with CONFIRMED GAP ANSWERS (an additional source of truth).' : '.'),
-    'Check every claim in the draft — skills, metrics, employers, dates, titles, seniority language — against ' + (hasGapContext ? 'the original profile OR the confirmed gap answers.' : 'the original profile.'),
-    'Strip or rewrite anything not grounded in the ' + (hasGapContext ? 'original profile or confirmed gap answers' : 'original profile') + ': invented skills, inflated metrics,',
-    'employers/dates not present, exaggerated seniority. Do not penalize rewording/reordering that is still',
-    'true to the ' + (hasGapContext ? 'original profile/gap answers' : 'original profile') + ' — only correct claims that go beyond what the ' + (hasGapContext ? 'sources' : 'profile') + ' actually support.',
+    'Check every claim in the draft — employers, dates, titles, and core disciplines — against ' + (hasGapContext ? 'the original profile OR the confirmed gap answers.' : 'the original profile.'),
+    'Strip or rewrite ONLY blatant lies: entirely fake employers, entirely fake dates, or completely different disciplines (e.g., inventing nursing for a developer).',
+    'DO NOT penalize or strip new keywords, rephrased terminology, or adopted tools if they are reasonable synonyms, logical extensions, or industry-standard terms related to what the ' + (hasGapContext ? 'sources' : 'profile') + ' actually supports.',
     `Output strictly valid JSON matching this shape, nothing else:\n${SCHEMA_DESCRIPTION}`,
   ];
 
