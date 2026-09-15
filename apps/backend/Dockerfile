@@ -1,7 +1,7 @@
-FROM node:22-bullseye-slim
+FROM node:22-bookworm-slim
 
 # Install Puppeteer and LaTeX dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --fix-missing --no-install-recommends \
     # Chromium dependencies for Puppeteer
     ca-certificates \
     fonts-liberation \
