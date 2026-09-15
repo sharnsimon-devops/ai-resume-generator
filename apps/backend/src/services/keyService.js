@@ -26,7 +26,7 @@ export async function saveKey(userId, plaintextKey) {
   if (!validation.valid) {
     const err = new Error('invalid_anthropic_key');
     err.status = 422;
-    err.publicMessage = 'invalid_anthropic_key';
+    err.publicMessage = 'The provided Anthropic API key is invalid. It must start with "sk-ant-".';
     throw err;
   }
 

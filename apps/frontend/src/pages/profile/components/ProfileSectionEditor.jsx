@@ -39,6 +39,41 @@ function StringListEditor({ label, items, onChange, placeholder }) {
   );
 }
 
+function LinksEditor({ links, onChange }) {
+  function updateLink(i, patch) {
+    onChange(updateAt(links, i, { ...links[i], ...patch }));
+  }
+
+  return (
+    <div className={styles.inputGroup} style={{ marginTop: '0.5rem' }}>
+      {links.map((link, i) => (
+        <div key={i} className={styles.flexRow}>
+          <input
+            className={styles.editorInput}
+            placeholder="Label (e.g. LinkedIn)"
+            value={link.label || ''}
+            onChange={(e) => updateLink(i, { label: e.target.value })}
+          />
+          <input
+            className={styles.editorInput}
+            placeholder="URL (e.g. https://github.com/...)"
+            value={link.url || ''}
+            onChange={(e) => updateLink(i, { url: e.target.value })}
+          />
+          <Button variant="ghost" size="sm" type="button" onClick={() => onChange(removeAt(links, i))}>
+            Remove
+          </Button>
+        </div>
+      ))}
+      <div>
+        <Button variant="secondary" size="sm" type="button" onClick={() => onChange([...links, { label: '', url: '' }])}>
+          + Add link
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function WorkHistoryEditor({ entries, onChange }) {
   function updateEntry(i, patch) {
     onChange(updateAt(entries, i, { ...entries[i], ...patch }));
@@ -250,6 +285,10 @@ export function ProfileSectionEditor({ profile, onChange }) {
               onChange={(e) => set('contact', { ...contact, location: e.target.value })}
             />
           </div>
+          <LinksEditor 
+            links={contact.links || []} 
+            onChange={(links) => set('contact', { ...contact, links })} 
+          />
         </div>
       </fieldset>
 

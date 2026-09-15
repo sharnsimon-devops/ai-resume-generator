@@ -1,125 +1,119 @@
-:root{
-  --ink:#000;
-  --serif:"Computer Modern Serif","Latin Modern Roman","CMU Serif",Georgia,"Times New Roman",serif;
-}
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;background:#e6e6e6;}
-html {
-  /* Default base font size, will be dynamically overwritten by Puppeteer */
-  font-size: 8.5pt;
-}
-body{
-  font-family:var(--serif);
-  color:var(--ink);
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
-}
-/* A4 sheet */
-.page{
-  width:21cm;
-  min-height:29.7cm;
-  margin:24px auto;
-  background:#fff;
-  padding:.8cm 1.2cm .8cm;
-  box-shadow:0 2px 14px rgba(0,0,0,.18);
-  font-size:1rem;
-  line-height:1.13;
-  hyphens:auto;
-  -webkit-hyphens:auto;
-}
-a{color:inherit;text-decoration:none;}
+  @page { size: A4; margin: 14mm 16mm; }
+  * { box-sizing: border-box; }
+  html {
+    font-size: 11pt;
+  }
+  body {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.32;
+    color: #1a1a1a;
+    width: 178mm; /* Exact A4 width (210mm) minus margins (16mm * 2) */
+    margin: 0 auto;
+    padding: 24px 0; /* Padding is handled by the PDF margins, but we add a bit for browser view */
+  }
 
-/* Header */
-.name{
-  text-align:center;
-  font-weight:700;
-  font-size:2.235rem;
-  letter-spacing:.05rem;
-  margin:0 0 0.353rem;
-}
-.subtitle{
-  text-align:center;
-  font-size:1.106rem;
-  margin:0 0 0.353rem;
-}
-.contact{
-  text-align:center;
-  font-size:1.047rem;
-  margin:0 0 0.471rem;
-}
-/* Section headings with full-width rule */
-.sec{
-  font-weight:700;
-  font-size:1.212rem;
-  letter-spacing:.02rem;
-  margin:0.588rem 0 0;
-  padding-bottom:0.141rem;
-  border-bottom:0.1rem solid var(--ink);
-}
-.sec + *{margin-top:0.294rem;}
-p.profile{
-  text-align:justify;
-  margin:0.353rem 0 0;
-  line-height:1.16;
-}
-/* Technical skills two-column */
-.skills{margin-top:0.471rem;}
-.srow{display:flex;align-items:flex-start;margin:0.071rem 0;line-height:1.18;}
-.srow .k{
-  flex:0 0 3.85cm;
-  font-weight:700;
-  padding-right:.3cm;
-}
-.srow .v{flex:1 1 auto;}
-/* Job / project heading rows */
-.entry{
-  display:flex;
-  justify-content:space-between;
-  align-items:baseline;
-  margin-top:0.412rem;
-  gap:.5cm;
-}
-.entry .title{font-weight:700;}
-.entry .meta{font-weight:700;white-space:nowrap;}
-.entry .meta.reg{font-weight:400;}
-.tech{font-style:italic;margin:0.118rem 0 0;}
-/* Bullet lists */
-ul{
-  list-style:none;
-  margin:0.176rem 0 0;
-  padding:0;
-}
-ul li{
-  position:relative;
-  padding-left:.42cm;
-  margin:0.082rem 0;
-  text-align:justify;
-  line-height:1.15;
-}
-ul li::before{
-  content:"\2022";
-  position:absolute;
-  left:.08cm;
-  top:-0.024rem;
-}
-/* Education three-column rows */
-.edu{
-  display:grid;
-  grid-template-columns:auto 1fr auto;
-  column-gap:.4cm;
-  align-items:baseline;
-  margin-top:0.353rem;
-}
-.edu .deg{font-weight:700;}
-.edu .inst{text-align:center;}
-.edu .yr{text-align:right;white-space:nowrap;}
-.avail{
-  display:flex;
-  gap:1.4cm;
-  margin-top:0.588rem;
-}
-@media print{
-  html,body{background:#fff;}
-  .page{margin:0;box-shadow:none;width:auto;min-height:auto;padding:0;}
-  @page{size:A4;margin:.8cm 1.2cm .8cm;}
-}
+  /* ---------- Header ---------- */
+  .name {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-align: center;
+    margin: 0 0 2px 0;
+  }
+  .title-line {
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2b2b2b;
+    margin: 0 0 4px 0;
+  }
+  .contact-line {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #333;
+    margin: 0 0 10px 0;
+  }
+  .contact-line a { color: #1a1a1a; text-decoration: none; }
+
+  /* ---------- Section headings ---------- */
+  h2.section {
+    font-size: 0.98rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    border-bottom: 1.4px solid #1a1a1a;
+    padding-bottom: 2px;
+    margin: 12px 0 6px 0;
+  }
+
+  /* ---------- Professional profile ---------- */
+  p.profile {
+    margin: 0 0 4px 0;
+    text-align: justify;
+  }
+
+  /* ---------- Skills table ---------- */
+  table.skills {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2px;
+  }
+  table.skills td {
+    vertical-align: top;
+    padding: 1.5px 0;
+    font-size: 0.9rem;
+  }
+  table.skills td.label {
+    width: 150px;
+    font-weight: 700;
+    white-space: nowrap;
+    padding-right: 10px;
+  }
+
+  /* ---------- Experience ---------- */
+  .role-block { margin-bottom: 8px; }
+  .role-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-weight: 700;
+    font-size: 0.94rem;
+  }
+  .role-title { font-weight: 700; }
+  .role-company { font-weight: 400; font-style: italic; }
+  .role-dates { font-weight: 400; font-size: 0.88rem; white-space: nowrap; }
+  ul.bullets {
+    margin: 3px 0 0 0;
+    padding-left: 17px;
+  }
+  ul.bullets li {
+    margin-bottom: 2.5px;
+    text-align: justify;
+  }
+
+  /* ---------- Projects ---------- */
+  .project-block { margin-bottom: 7px; }
+  .project-title { font-weight: 700; }
+  .project-sub { font-weight: 400; font-style: italic; font-size: 0.87rem; }
+  .project-stack {
+    font-size: 0.85rem;
+    color: #333;
+    margin: 1px 0 2px 0;
+  }
+
+  /* ---------- Education ---------- */
+  .edu-block { margin-bottom: 4px; }
+  .edu-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+  }
+  .edu-modules { font-size: 0.86rem; color: #333; }
+
+  strong { font-weight: 700; }
+
+  @media print {
+    body { padding: 0; }
+  }

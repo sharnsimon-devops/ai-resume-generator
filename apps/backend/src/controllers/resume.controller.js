@@ -3,6 +3,7 @@ import { logger } from '../lib/logger.js';
 import * as analyzeService from '../services/analyzeService.js';
 import * as generationService from '../services/generationService.js';
 import * as scoreService from '../services/scoreService.js';
+import * as renderService from '../services/renderService.js';
 import { SteeringSchema } from '../utils/validation.js';
 
 /**
@@ -86,5 +87,25 @@ export async function score(req, res) {
   } catch (err) {
     logger.error({ err }, 'resume scoring failed');
     res.status(err.status || 500).json({ error: err.publicMessage || 'score_failed' });
+  }
+}
+
+/**
+ * Render a resume to PDF on the fly.
+ */
+export async function renderPdf(req, res) {
+  const { resume } = req.body;
+  if (!resume) {
+    return res.status(400).json({ error: 'resume_required' });
+  }
+
+  try {
+    const pdfBuffer = await renderService.renderResumeToPdf(resume);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="resume.pdf"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    logger.error({ err }, 'resume render failed');
+    res.status(500).json({ error: 'render_failed' });
   }
 }

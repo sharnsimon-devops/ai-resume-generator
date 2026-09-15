@@ -8,7 +8,6 @@ import { logger } from './lib/logger.js';
 import { metaRouter } from './routes/meta.routes.js';
 import { keysRouter } from './routes/keys.routes.js';
 import { profileRouter } from './routes/profile.routes.js';
-import { generationRouter } from './routes/generation.routes.js';
 import { templateRouter } from './routes/template.routes.js';
 import { atsRouter } from './routes/ats.routes.js';
 import { resumeRouter } from './routes/resume.routes.js';
@@ -27,7 +26,6 @@ export function createApp() {
   app.use('/api', metaRouter);
   app.use('/api/keys', keysRouter);
   app.use('/api/profile', profileRouter);
-  app.use('/api/generations', generationRouter);
   app.use('/api/templates', templateRouter);
   app.use('/api/ats', atsRouter);
   app.use('/api/resume', resumeRouter);

@@ -16,3 +16,6 @@ resumeRouter.post('/generate', generationRateLimiter, resumeController.generate)
 
 // Step 3: Score the generated resume (hybrid deterministic + qualitative)
 resumeRouter.post('/score', asyncHandler(resumeController.score));
+
+// Render resume to PDF
+resumeRouter.post('/render', asyncHandler(resumeController.renderPdf));

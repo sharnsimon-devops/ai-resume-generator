@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { downloadGenerationPdf } from '../../lib/downloadGenerationPdf.js';
-import { apiClient } from '../../lib/apiClient.js';
+import { apiClient, API_BASE_URL } from '../../lib/apiClient.js';
 import { useGenerationStream } from '../../hooks/useGenerationStream.js';
 import { JobDescriptionInput } from './components/JobDescriptionInput.jsx';
 import { SteeringForm } from './components/SteeringForm.jsx';
@@ -95,7 +94,6 @@ export function GeneratePage() {
           templateId,
           gapAnswers: [],
           keywordList: analysis.keyword_list || [],
-          useResumeEndpoint: true,
         });
       }
     } catch (err) {
@@ -126,7 +124,6 @@ export function GeneratePage() {
       templateId,
       gapAnswers: gapAnswersArray,
       keywordList: analysisResult.keyword_list || [],
-      useResumeEndpoint: true,
     });
   }
 
@@ -313,17 +310,36 @@ export function GeneratePage() {
                     <Button variant="primary" onClick={async (e) => {
                       const btn = e.currentTarget;
                       const originalText = btn.innerText;
-                      btn.innerText = 'Saving...';
+                      btn.innerText = 'Generating PDF...';
                       btn.disabled = true;
                       try {
-                        if (previewResume) {
-                          await apiClient.put(`/api/generations/${result.generationId}`, { resume });
+                        const { supabase } = await import('../../lib/supabaseClient.js');
+                        const { data: sessionData } = await supabase.auth.getSession();
+                        const accessToken = sessionData.session?.access_token;
+
+                        const res = await fetch(`${API_BASE_URL}/api/resume/render`, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+                          },
+                          body: JSON.stringify({ resume })
+                        });
+                        
+                        if (!res.ok) {
+                          throw new Error('Failed to render PDF');
                         }
-                        btn.innerText = 'Downloading...';
-                        await downloadGenerationPdf(result.generationId);
+                        
+                        const blob = await res.blob();
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `resume.pdf`;
+                        a.click();
+                        URL.revokeObjectURL(url);
                       } catch (err) {
                         console.error('Failed to download PDF:', err);
-                        alert('Failed to save or download PDF.');
+                        alert('Failed to generate or download PDF.');
                       } finally {
                         btn.innerText = originalText;
                         btn.disabled = false;

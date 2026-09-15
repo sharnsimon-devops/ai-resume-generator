@@ -124,7 +124,7 @@ export function ApiKeyPage() {
               onChange={(e) => setApiKey(e.target.value)} 
               required 
               placeholder="sk-ant-..."
-              hint="Requires Claude 3.5 Sonnet access."
+              hint="Requires Claude 3.7 Sonnet access."
             />
             {error && <div className={styles.errorAlert} role="alert">{error}</div>}
             <div>

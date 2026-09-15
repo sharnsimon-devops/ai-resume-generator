@@ -9,7 +9,6 @@ import { ApiKeyPage } from './pages/settings/ApiKeyPage.jsx';
 import { TemplatesPage } from './pages/settings/TemplatesPage.jsx';
 import { ProfileBuilderPage } from './pages/profile/ProfileBuilderPage.jsx';
 import { GeneratePage } from './pages/generate/GeneratePage.jsx';
-import { HistoryPage } from './pages/history/HistoryPage.jsx';
 
 export const router = createBrowserRouter([
   {
@@ -24,7 +23,6 @@ export const router = createBrowserRouter([
         children: [
           { path: 'profile', element: <ProfileBuilderPage /> },
           { path: 'generate', element: <GeneratePage /> },
-          { path: 'history', element: <HistoryPage /> },
           { path: 'settings/api-key', element: <ApiKeyPage /> },
           { path: 'settings/templates', element: <TemplatesPage /> },
         ],

@@ -19,7 +19,6 @@ export function NavBar() {
             <nav className={styles.navLinks}>
               <Link to="/profile" className={styles.navLink}>Profile</Link>
               <Link to="/generate" className={styles.navLink}>Generate</Link>
-              <Link to="/history" className={styles.navLink}>History</Link>
               <Link to="/settings/templates" className={styles.navLink}>Templates</Link>
               <Link to="/settings/api-key" className={styles.navLink}>Keys</Link>
             </nav>

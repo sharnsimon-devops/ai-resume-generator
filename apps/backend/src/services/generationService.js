@@ -71,66 +71,7 @@ export async function runGeneration({ userId, accessToken, jdText, steering, ren
     await renderService.renderResumeToPdf(verifiedResume);
   }
 
-  // Insert into generations table
-  const insertPayload = {
-    user_id: userId,
-    jd_text: jdText,
-    steering_json: steering ?? {},
-    result_json: verifiedResume,
-    render_engine: renderEngine,
-    flags_json: flags,
-  };
-  
-  if (renderEngine === 'latex') {
-    // Optionally store the template_id if schema allowed it, but the spec only says render_engine.
-  }
-
-  const { data, error } = await getSupabaseForUser(accessToken)
-    .from('generations')
-    .insert(insertPayload)
-    .select('id')
-    .single();
-
-  if (error) throw error;
-
   onProgress?.('done');
 
-  return { generationId: data.id, resume: verifiedResume, flags, texSource: injectedTex };
-}
-
-export async function renderGenerationPdf(userId, accessToken, generationId) {
-  const { data, error } = await getSupabaseForUser(accessToken)
-    .from('generations')
-    .select('result_json, render_engine')
-    .eq('id', generationId)
-    .eq('user_id', userId)
-    .maybeSingle();
-
-  if (error) throw error;
-  if (!data) {
-    const err = new Error('generation_not_found');
-    err.status = 404;
-    err.publicMessage = 'generation_not_found';
-    throw err;
-  }
-
-  if (data.render_engine === 'latex') {
-    // Note: Since we don't store the injected .tex string in the DB, 
-    // downloading a past LaTeX PDF would require re-injecting and recompiling.
-    // To satisfy the spec for this phase without schema changes, we compile it on the fly.
-    // A robust version would save the compiled PDF to Supabase Storage.
-    throw new Error('Downloading past LaTeX PDFs is not fully supported without Supabase Storage in this phase. Try regenerating it.');
-  }
-
-  return renderService.renderResumeToPdf(data.result_json);
-}
-
-export async function updateGenerationResult(userId, accessToken, generationId, newResumeJson) {
-  const { error } = await getSupabaseForUser(accessToken)
-    .from('generations')
-    .update({ result_json: newResumeJson })
-    .eq('id', generationId)
-    .eq('user_id', userId);
-
-  if (error) throw error;
+  return { generationId: null, resume: verifiedResume, flags, texSource: injectedTex };
 }

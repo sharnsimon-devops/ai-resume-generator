@@ -1,0 +1,35 @@
+# AI Resume Builder - Application Overview
+
+## What Problem Does It Solve?
+Job seekers need to tailor their resumes to match specific job descriptions (JDs) to pass Applicant Tracking Systems (ATS) and stand out to recruiters. However, doing this manually is incredibly time-consuming. While there are AI resume generators available, they commonly suffer from hallucinations—inventing skills, inflating metrics, or making up experiences that the candidate does not actually possess. This embellishment ruins a candidate's credibility and makes existing AI tools risky to use. 
+
+## How Do We Solve It?
+We solve this by providing a "verified, not embellished" resume generation platform. 
+
+1. **Static Profile Setup:** A user creates a master profile once (by pasting an old resume, uploading a file, or filling a form).
+2. **AI Tailoring:** The user pastes a job description, and a "Tailor Agent" drafts a tailored resume that mirrors the exact terminology of the JD based on the user's experiences.
+3. **The Guardrail Agent (Core Differentiator):** Before the user sees the output, a secondary "Guardrail Agent" strictly verifies the drafted resume against the user's original master profile. It flags or strips out any claim, skill, or metric that was not present in the original profile. 
+
+This dual-agent architecture ensures that the generated resume is highly optimized for the job but 100% grounded in the user's actual truth. The user then receives a downloadable PDF produced in under a minute.
+
+## What Technologies Do We Use?
+- **Frontend:** React + Vite
+- **Backend:** Node.js + Express
+- **Database & Authentication:** Supabase (Managed PostgreSQL) utilizing Row Level Security (RLS) and Supabase Auth.
+- **AI Integration:** Anthropic API (`@anthropic-ai/sdk`) leveraging models like Claude.
+- **Rendering Engines:** 
+  - *Default:* HTML/CSS converted to PDF via Puppeteer (Node-native) for fast, safe rendering.
+  - *Advanced (Phase 3):* User-supplied LaTeX compiled in a locked-down, ephemeral Docker sandbox without network access.
+- **Security & API Keys:** Bring-your-own-key (BYOK) architecture where users supply their Anthropic API key, which is encrypted using AES-256-GCM before being stored in the database.
+
+## How Is It Built in an Impactful Way?
+The application is architected with non-negotiable principles around security, speed, and integrity:
+
+1. **Absolute Truthfulness (The Guardrail):** The product's main selling point is the guarantee against AI hallucinations. The Guardrail agent runs on every generation, preventing the user from generating a fraudulent resume even if they try to use prompt engineering ("steering").
+2. **Domain-Agnostic Design:** The system does not assume a software engineering shape. It works equally well for nurses, teachers, salespeople, or developers. Resume sections are driven purely by the data present in the user's profile.
+3. **Security-First Architecture:** 
+   - **Tenant Isolation:** Supabase Row Level Security (RLS) ensures users can only access their own data at the database level.
+   - **Encrypted Secrets:** User API keys are strictly stored with AES-256-GCM encryption. The master key never touches the database or frontend. Decryption happens purely on the backend at the exact moment of the API call, preventing key leaks.
+   - **Sandboxed Rendering:** Untrusted LaTeX templates are processed in ephemeral containers with dropped Linux capabilities and no network access to prevent Remote Code Execution (RCE).
+4. **Performance & Speed:** End-to-end generation is budgeted to take under 60 seconds (targeting 15-35s) by utilizing Anthropic prompt caching for the user's profile context and streaming progress directly to the UI, so the app feels fast and responsive. 
+5. **Constrained User Steering:** Instead of offering a free-text prompt that could jailbreak the AI, users are given structured, constrained steering options (target role, tone, seniority, and specific emphasis). This allows for customization without compromising the integrity of the Guardrail.

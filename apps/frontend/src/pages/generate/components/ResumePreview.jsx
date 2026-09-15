@@ -223,18 +223,33 @@ export function ResumePreview({ resume, onChange }) {
       {resume.additionalSections !== undefined && resume.additionalSections.length > 0 && (
         <div>
           {resume.additionalSections.map((section, i) => (
-             <div key={i} style={{ marginBottom: '1.5rem', padding: '0.5rem', borderRadius: '4px', transition: 'background-color 0.2s' }}
-                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-bg-surface-hover)'}
-                  onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
-             >
-                <input 
-                  value={section.title || ''} 
-                  onChange={(e) => updateArrayItem('additionalSections', i, 'title', e.target.value)}
-                  style={{ ...inputStyle, margin: '0 0 0.5rem 0', textTransform: 'uppercase', fontSize: '0.875rem', fontWeight: 'bold', color: 'var(--color-text-primary)' }}
-                  {...getFocusProps()}
-                  placeholder="Section Title"
-                />
-                <textarea
+              <div key={i} style={{ marginBottom: '1.5rem', padding: '0.5rem', borderRadius: '4px', transition: 'background-color 0.2s', position: 'relative' }}
+                   onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-bg-surface-hover)'}
+                   onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                   <input 
+                     value={section.title || ''} 
+                     onChange={(e) => updateArrayItem('additionalSections', i, 'title', e.target.value)}
+                     style={{ ...inputStyle, margin: '0 0 0.5rem 0', textTransform: 'uppercase', fontSize: '0.875rem', fontWeight: 'bold', color: 'var(--color-text-primary)' }}
+                     {...getFocusProps()}
+                     placeholder="Section Title"
+                   />
+                   <button
+                     onClick={() => {
+                       const newArray = [...resume.additionalSections];
+                       newArray.splice(i, 1);
+                       update('additionalSections', newArray);
+                     }}
+                     style={{ fontSize: '0.75rem', color: 'var(--color-error)', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 6px', opacity: 0.7 }}
+                     onMouseEnter={e => e.target.style.opacity = 1}
+                     onMouseLeave={e => e.target.style.opacity = 0.7}
+                     title="Remove Section"
+                   >
+                     Remove
+                   </button>
+                 </div>
+                 <textarea
                   value={(section.items || []).join('\n')}
                   onChange={(e) => updateArrayItem('additionalSections', i, 'items', e.target.value.split('\n').filter(item => item.trim()))}
                   rows={(section.items || []).length || 2}

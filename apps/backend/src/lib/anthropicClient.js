@@ -49,17 +49,10 @@ export function createAnthropicClient({ apiKey, mock }) {
       return { content: text, usage: response.usage };
     },
     async validateApiKey(plaintextKey) {
-      try {
-        const probe = new Anthropic({ apiKey: plaintextKey });
-        await probe.messages.create({
-          model: ANTHROPIC_MODEL,
-          max_tokens: 1,
-          messages: [{ role: 'user', content: 'ping' }],
-        });
+      if (typeof plaintextKey === 'string' && plaintextKey.startsWith('sk-ant-')) {
         return { valid: true };
-      } catch (err) {
-        return { valid: false, error: err.message };
       }
+      return { valid: false, error: 'Key must start with sk-ant-' };
     },
   };
 }

@@ -23,14 +23,16 @@ export function useGenerationStream() {
     setResult(null);
     setStageLabel(STAGE_LABELS.tailoring);
 
-    // Use the new /api/resume/generate endpoint when gap context is available,
-    // fall back to the existing /api/generations endpoint for backward compat
-    const endpoint = useResumeEndpoint ? '/api/resume/generate' : '/api/generations';
-    const body = { jdText, steering, renderEngine, templateId };
-    if (useResumeEndpoint) {
-      body.gapAnswers = gapAnswers || [];
-      body.keywordList = keywordList || [];
-    }
+    // Always use the /api/resume/generate endpoint
+    const endpoint = '/api/resume/generate';
+    const body = { 
+      jdText, 
+      steering, 
+      renderEngine, 
+      templateId,
+      gapAnswers: gapAnswers || [],
+      keywordList: keywordList || []
+    };
 
     try {
       await sseFetch(endpoint, body, {

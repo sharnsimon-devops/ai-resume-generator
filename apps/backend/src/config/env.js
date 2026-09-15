@@ -8,7 +8,7 @@ export const env = {
 
   MASTER_KEY: process.env.MASTER_KEY || '',
 
-  ANTHROPIC_MODEL: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5',
+  ANTHROPIC_MODEL: process.env.ANTHROPIC_MODEL || 'claude-3-7-sonnet-20250219',
   ANTHROPIC_MOCK_MODE: (process.env.ANTHROPIC_MOCK_MODE ?? 'true') === 'true',
 
   RATE_LIMIT_GENERATIONS_PER_HOUR: Number(process.env.RATE_LIMIT_GENERATIONS_PER_HOUR || 10),
