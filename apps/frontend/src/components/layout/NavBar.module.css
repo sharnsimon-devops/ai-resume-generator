@@ -27,6 +27,17 @@
   text-decoration: none;
 }
 
+.betaBadge {
+  background-color: var(--color-primary, #2563eb);
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
 .navLinks {
   display: flex;
   align-items: center;
